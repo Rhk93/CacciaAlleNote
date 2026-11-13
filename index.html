@@ -181,6 +181,13 @@
   .dp .st{font-size:1.1rem;min-height:1.4em}
   .dp .info{font-size:.8rem;color:#7a6f9b;font-weight:600}
   .crown{font-size:1.6rem;min-height:1.8rem}
+  .timer{display:none;align-items:center;gap:8px;margin:2px 52px 0}
+  .timer.on{display:flex}
+  .timer b{font-size:1.2rem;min-width:52px;color:#6c5ce7}
+  .timer .tb{flex:1;height:10px;background:#eee;border-radius:8px;overflow:hidden}
+  .timer .tb i{display:block;height:100%;width:100%;background:#2ecc71;border-radius:8px}
+  .timer.hurry b{color:#ff4d6d;animation:pulse .5s infinite alternate}
+  @keyframes pulse{to{transform:scale(1.2)}}
   footer{text-align:center;font-size:.8rem;color:#5b4d86;margin:6px 0 10px}
   canvas#confetti{position:fixed;inset:0;pointer-events:none;z-index:30}
 </style>
@@ -248,7 +255,7 @@
         <button data-lv="1" class="sel">🐣 Facile<small>solo dentro il pentagramma</small></button>
         <button data-lv="2">🐯 Medio<small>con 1 taglio addizionale</small></button>
         <button data-lv="3">🦁 Esperto<small>fino a 2 tagli addizionali</small></button>
-        <button data-lv="4">🐉 Espertissimo<small>fino a 3 tagli addizionali</small></button>
+        <button data-lv="4">🐉 Espertissimo<small>3 tagli + ⏱ 10 secondi a nota</small></button>
       </div>
     </div>
 
@@ -282,6 +289,7 @@
     <div class="card staffcard" id="staffCard">
       <button class="helpbtn" data-help id="helpBtn" aria-label="Promemoria">💡 Aiuto</button>
       <button class="soundbtn" id="soundBtn" aria-label="Suono">🔊</button>
+      <div class="timer" id="timer"><b id="tNum">⏱ 10</b><div class="tb"><i id="tBar"></i></div></div>
       <svg viewBox="0 0 340 240" id="staff" aria-label="Pentagramma"></svg>
       <p class="question">Come si chiama questa nota? 🤔</p>
     </div>
@@ -522,6 +530,33 @@
     buildSeq(); show('sGame'); next();
   }
   const cur = () => players[i % nP];
+  const TIME_LIMIT = 10; // secondi, solo Espertissimo
+  let tStart = 0, tRaf = 0, tLastSec = -1;
+  function stopTimer(){ cancelAnimationFrame(tRaf); tRaf = 0; $('timer').classList.remove('hurry'); }
+  function startTimer(){
+    stopTimer();
+    const on = level===4;
+    $('timer').classList.toggle('on', on);
+    if(!on) return;
+    tStart = performance.now(); tLastSec = -1;
+    const g = gameId, turn = i;
+    (function tick(now){
+      if(g!==gameId || turn!==i || locked) return;
+      const left = Math.max(0, TIME_LIMIT - (now - tStart)/1000);
+      const sec = Math.ceil(left);
+      $('tNum').textContent = '⏱ ' + sec;
+      const f = left/TIME_LIMIT;
+      $('tBar').style.width = (f*100)+'%';
+      $('tBar').style.background = f>0.5 ? '#2ecc71' : f>0.3 ? '#ffc300' : '#ff4d6d';
+      $('timer').classList.toggle('hurry', left<=3);
+      if(left<=3 && sec!==tLastSec && sec>0 && soundOn){ tLastSec = sec; tick5(); }
+      if(left<=0){ answer(-1,null); return; }
+      tRaf = requestAnimationFrame(tick);
+    })(tStart);
+  }
+  function tick5(){ try{ actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    const t=actx.currentTime,o=actx.createOscillator(),g=actx.createGain(); o.frequency.value=1200; g.gain.setValueAtTime(.08,t);
+    g.gain.exponentialRampToValueAtTime(.0001,t+.08); o.connect(g).connect(actx.destination); o.start(t); o.stop(t+.1);}catch(e){} }
   function updateHud(){
     const round = Math.min(Math.floor(i/nP)+1, total);
     if(nP===1){
@@ -543,11 +578,12 @@
     $('fb').textContent=''; $('fb').className='feedback';
     $('turn').textContent = nP>1 ? `Tocca a ${cur().av[0]} ${cur().av[1]}!` : '';
     document.querySelectorAll('#keys button').forEach(b=>{ b.disabled=false; b.classList.remove('right','wrong'); });
-    updateHud(); drawStaff(current);
+    updateHud(); drawStaff(current); startTimer();
   }
   const PRAISE = ["Bravo! 🎉","Esatto! ✨","Grande! 💪","Perfetto! 🌟","Wow! 🤩","Super! 🚀"];
   function answer(k,btn){
     if(locked) return; locked = true;
+    stopTimer();
     const P = cur();
     const correctK = m7(current);
     const card = $('staffCard'); card.classList.remove('good','bad'); void card.offsetWidth;
@@ -566,9 +602,10 @@
       }
     } else {
       P.streak = 0;
-      btn.classList.add('wrong'); card.classList.add('bad');
+      if(btn) btn.classList.add('wrong');
+      card.classList.add('bad');
       document.querySelector(`#keys button[data-k="${correctK}"]`).classList.add('right');
-      $('fb').textContent = `Oops! Era ${NAMES[correctK]} 🙈`;
+      $('fb').textContent = k<0 ? `⏰ Tempo scaduto! 0 punti. Era ${NAMES[correctK]}` : `Oops! Era ${NAMES[correctK]} 🙈`;
       $('fb').className='feedback ko';
       play(current,false);
       setTimeout(()=>play(current),350);
@@ -591,6 +628,7 @@
     $('prog').style.width='100%';
     $('helpPanel').classList.remove('on');
     $('turn').textContent='';
+    stopTimer(); $('timer').classList.remove('on');
     const solo = nP===1;
     $('soloCard').style.display = solo ? '' : 'none';
     $('duel').classList.toggle('on', !solo);
@@ -688,7 +726,7 @@
 
   $('startBtn').onclick = start;
   $('againBtn').onclick = start;
-  function toMenu(){ gameId++; $('helpPanel').classList.remove('on'); renderLb($('lbStart')); show('sStart'); }
+  function toMenu(){ gameId++; stopTimer(); $('helpPanel').classList.remove('on'); renderLb($('lbStart')); show('sStart'); }
   $('menuBtn').onclick = toMenu;
   let quitArmed = false;
   $('quitBtn').onclick = ()=>{
