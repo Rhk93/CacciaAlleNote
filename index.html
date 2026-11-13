@@ -126,6 +126,61 @@
      font-size:.95rem;font-weight:700;cursor:pointer;flex:none}
   .helplink{border:none;background:#fff3c4;color:#8a6500;border-radius:16px;padding:10px;font-family:inherit;
      font-weight:700;font-size:1rem;cursor:pointer;margin-top:10px;width:100%}
+  #levels{display:grid;grid-template-columns:1fr 1fr}
+  .topbar{display:flex;justify-content:flex-start}
+  .quit{border:none;background:#fff;color:#6c5ce7;border-radius:16px;padding:8px 14px;font-family:inherit;
+     font-weight:700;font-size:1rem;cursor:pointer;box-shadow:0 4px 0 rgba(108,92,231,.3)}
+  .quit.warn{background:#ff4d6d;color:#fff}
+  .avtabs{display:flex;gap:8px;margin-bottom:10px}
+  .avtabs button{flex:1;padding:10px;border-radius:14px;border:3px solid #e0dcff;background:#f6f4ff;font-family:inherit;
+     font-size:1rem;font-weight:700;color:var(--ink);cursor:pointer}
+  .avtabs button.sel[data-g="m"]{background:#1fb6ff;border-color:#1fb6ff;color:#fff}
+  .avtabs button.sel[data-g="f"]{background:#ff6fa5;border-color:#ff6fa5;color:#fff}
+  .avgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .avgrid.err{animation:shake .4s}
+  .av{border:3px solid transparent;background:#f6f4ff;border-radius:18px;padding:6px 2px 4px;cursor:pointer;font-family:inherit}
+  .av span{display:block;font-size:2.2rem;line-height:1.1}
+  .av small{display:block;font-size:.7rem;font-weight:600;color:#4b3f72;margin-top:2px}
+  .av.sel{border-color:#6c5ce7;background:#fff3c4;transform:scale(1.06)}
+  .avnote{text-align:center;font-size:.85rem;color:#ff4d6d;font-weight:600;min-height:1.1em;margin:6px 0 0}
+  .me-av{margin-left:auto;background:#fff;border-radius:16px;padding:4px 12px;font-weight:700;display:flex;align-items:center;gap:6px;
+     box-shadow:0 4px 0 rgba(108,92,231,.3)}
+  .me-av span{font-size:1.5rem}
+  .lb .ava{font-size:1.4rem;margin-right:4px;vertical-align:middle}
+  .namein{width:100%;padding:12px 14px;border-radius:16px;border:3px solid #e0dcff;font-family:inherit;
+     font-size:1.15rem;font-weight:600;color:var(--ink);outline:none}
+  .namein:focus{border-color:#6c5ce7}
+  .namein.err{border-color:#ff4d6d;animation:shake .4s}
+  .lb{width:100%;border-collapse:collapse;font-size:.95rem}
+  .lb th{font-size:.75rem;text-transform:uppercase;color:#7a6f9b;text-align:left;padding:4px}
+  .lb td{padding:7px 4px;border-top:1px solid #eee}
+  .lb td.pos{font-weight:700;width:34px;text-align:center}
+  .lb td.pts{font-weight:700;color:#ff6fa5;text-align:right}
+  .lb tr.me td{background:#fff3c4}
+  .lb .st{font-size:.75rem;white-space:nowrap}
+  .lbempty{text-align:center;color:#7a6f9b;margin:6px 0}
+  .tiny{border:none;background:none;color:#a39cc4;font-family:inherit;font-size:.8rem;margin:8px auto 0;display:block;cursor:pointer;text-decoration:underline}
+  #modes button small{font-size:.7rem}
+  .slots{display:none;gap:8px;margin-bottom:10px}
+  .slots.on{display:flex}
+  .slot{flex:1;border:3px dashed #c9c2f5;background:#fff;border-radius:16px;padding:6px;font-family:inherit;cursor:pointer;
+     font-weight:700;color:#4b3f72;font-size:.85rem}
+  .slot span{display:block;font-size:1.9rem;line-height:1.15}
+  .slot.sel{border-style:solid;border-color:#6c5ce7;background:#f1eeff}
+  .av.taken{opacity:.35}
+  .hud .pill.active{outline:4px solid #ffc300;transform:scale(1.04);transition:transform .2s}
+  .hud .pill .avp{font-size:1.6rem;line-height:1}
+  .turn{text-align:center;font-size:1.25rem;font-weight:700;color:#6c5ce7;margin:0;min-height:1.6em}
+  .duel{display:none;grid-template-columns:1fr 1fr;gap:10px}
+  .duel.on{display:grid}
+  .dp{background:#f6f4ff;border-radius:18px;padding:10px;text-align:center;border:4px solid transparent}
+  .dp.win{border-color:#ffc300;background:#fff8dc}
+  .dp .big-av{font-size:3rem;line-height:1.1}
+  .dp .nm{font-weight:700}
+  .dp .sc{font-size:2.2rem;font-weight:700;color:#ff6fa5;line-height:1.1}
+  .dp .st{font-size:1.1rem;min-height:1.4em}
+  .dp .info{font-size:.8rem;color:#7a6f9b;font-weight:600}
+  .crown{font-size:1.6rem;min-height:1.8rem}
   footer{text-align:center;font-size:.8rem;color:#5b4d86;margin:6px 0 10px}
   canvas#confetti{position:fixed;inset:0;pointer-events:none;z-index:30}
 </style>
@@ -154,14 +209,28 @@
     <p class="sub">Guarda la nota sul pentagramma e indovina il suo nome!</p>
 
     <div class="card">
+      <p class="label" id="avLabel">Scegli il tuo avatar</p>
+      <div class="slots" id="slots">
+        <button class="slot sel" data-s="0">Giocatore 1<span id="slot0">❔</span></button>
+        <button class="slot" data-s="1">Giocatore 2<span id="slot1">❔</span></button>
+      </div>
+      <div class="avtabs" id="avTabs">
+        <button data-g="m" class="sel">👦 Maschi</button>
+        <button data-g="f">👧 Femmine</button>
+      </div>
+      <div class="avgrid" id="avGrid"></div>
+      <p class="avnote" id="avNote"></p>
+    </div>
+
+    <div class="card">
       <p class="label">Quante note vuoi?</p>
       <div class="stepper">
         <button id="minus" aria-label="Meno">−</button>
         <div class="count" id="countVal">10</div>
         <button id="plus" aria-label="Più">+</button>
       </div>
-      <input type="range" id="countRange" min="5" max="20" value="10">
-      <div class="hint">da un minimo di 5 a un massimo di 20 note</div>
+      <input type="range" id="countRange" min="5" max="30" value="10">
+      <div class="hint">da un minimo di 5 a un massimo di 30 note</div>
     </div>
 
     <div class="card">
@@ -169,6 +238,7 @@
       <div class="seg" id="modes">
         <button data-md="gara" class="sel">🏆 Gara<small>punti e stelline, senza aiuto</small></button>
         <button data-md="eser">🧩 Esercizio<small>con l'aiuto, senza punti</small></button>
+        <button data-md="sfida">⚔️ Sfida<small>in due, a turno</small></button>
       </div>
     </div>
 
@@ -178,6 +248,7 @@
         <button data-lv="1" class="sel">🐣 Facile<small>solo dentro il pentagramma</small></button>
         <button data-lv="2">🐯 Medio<small>con 1 taglio addizionale</small></button>
         <button data-lv="3">🦁 Esperto<small>fino a 2 tagli addizionali</small></button>
+        <button data-lv="4">🐉 Espertissimo<small>fino a 3 tagli addizionali</small></button>
       </div>
     </div>
 
@@ -188,21 +259,24 @@
         <li>🔥 3 note giuste di fila = <b>+2 punti bonus</b></li>
         <li>⭐ Alla fine ricevi da 1 a 5 stelline</li>
         <li>🧩 Nella modalità <b>Esercizio</b> c'è il promemoria 💡, ma niente punti</li>
+        <li>⚔️ Nella <b>Sfida</b> si gioca in due sullo stesso telefono, una nota a testa: vince chi fa più punti!</li>
       </ul>
       <button class="helplink" data-help id="helpLink" style="display:none">💡 Ripassa le note (promemoria)</button>
     </div>
 
-    <div class="record" id="record"></div>
     <button class="big" id="startBtn">GIOCA! 🚀</button>
+
+    <div class="card">
+      <p class="label">🏆 Classifica (modalità Gara)</p>
+      <div id="lbStart"></div>
+      <button class="tiny" id="resetLb">Azzera classifica</button>
+    </div>
   </section>
 
   <!-- SCHERMATA DI GIOCO -->
   <section class="screen" id="sGame">
-    <div class="hud">
-      <div class="pill"><b id="hNum">1/10</b><span>Nota</span></div>
-      <div class="pill score"><b id="hScore">0</b><span id="hScoreLbl">Punti</span></div>
-      <div class="pill streak"><b id="hStreak">0</b><span>Di fila 🔥</span></div>
-    </div>
+    <div class="topbar"><button class="quit" id="quitBtn">🏠 Menu</button><div class="me-av" id="meAv"></div></div>
+    <div class="hud" id="hud"></div>
     <div class="bar"><i id="prog"></i></div>
 
     <div class="card staffcard" id="staffCard">
@@ -212,6 +286,7 @@
       <p class="question">Come si chiama questa nota? 🤔</p>
     </div>
 
+    <p class="turn" id="turn"></p>
     <div class="feedback" id="fb"></div>
     <div class="keys" id="keys"></div>
   </section>
@@ -219,7 +294,8 @@
   <!-- RISULTATI -->
   <section class="screen" id="sEnd">
     <h1 id="endTitle">Partita finita!</h1>
-    <div class="card">
+    <div class="card duel" id="duel"></div>
+    <div class="card" id="soloCard">
       <div class="stars" id="stars" style="display:flex"><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span></div>
       <div class="final"><span id="fScore">0</span><small id="fMax">punti</small></div>
       <p class="msg" id="fMsg"></p>
@@ -232,6 +308,10 @@
     <div class="row">
       <button class="big" style="flex:2" id="againBtn">Gioca ancora 🔄</button>
       <button class="ghost" id="menuBtn">Menu</button>
+    </div>
+    <div class="card" id="lbEndCard">
+      <p class="label">🏆 Classifica</p>
+      <div id="lbEnd"></div>
     </div>
   </section>
 
@@ -247,8 +327,9 @@
   const BONUS_PTS = 2;
 
   // indice 0 = Do centrale (Do4) ... 12 = La5
-  const LEVEL_RANGE = {1:[2,10], 2:[0,12], 3:[-2,14]}; // Facile: Mi4–Fa5, Medio: Do4–La5, Esperto: La3–Do6
-  const LEVEL_NAME = {1:'Facile',2:'Medio',3:'Esperto'};
+  const LEVEL_RANGE = {1:[2,10], 2:[0,12], 3:[-2,14], 4:[-4,16]}; // Facile: Mi4–Fa5, Medio: Do4–La5, Esperto: La3–Do6
+  const LEVEL_NAME = {1:'Facile',2:'Medio',3:'Esperto',4:'Espertissimo'};
+  const LEVEL_ICON = {1:'🐣',2:'🐯',3:'🦁',4:'🐉'};
   const m7 = n => ((n%7)+7)%7;
 
   let total = 10, level = 1, soundOn = true, mode = 'gara';
@@ -259,26 +340,84 @@
   const show = id => { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on')); $(id).classList.add('on'); window.scrollTo(0,0); };
 
   /* ---------- impostazioni ---------- */
-  function setCount(n){ total = Math.max(5,Math.min(20,n)); $('countVal').textContent = total; $('countRange').value = total; }
+  function setCount(n){ total = Math.max(5,Math.min(30,n)); $('countVal').textContent = total; $('countRange').value = total; }
   $('minus').onclick = ()=>setCount(total-1);
   $('plus').onclick  = ()=>setCount(total+1);
   $('countRange').oninput = e=>setCount(+e.target.value);
   document.querySelectorAll('#levels button').forEach(b=>b.onclick=()=>{
     document.querySelectorAll('#levels button').forEach(x=>x.classList.remove('sel'));
-    b.classList.add('sel'); level = +b.dataset.lv; showRecord();
+    b.classList.add('sel'); level = +b.dataset.lv;
   });
 
   document.querySelectorAll('#modes button').forEach(b=>b.onclick=()=>{
     document.querySelectorAll('#modes button').forEach(x=>x.classList.remove('sel'));
     b.classList.add('sel'); mode = b.dataset.md;
     $('helpLink').style.display = mode==='eser' ? 'block' : 'none';
-    if(mode==='gara') $('helpPanel').classList.remove('on');
+    if(mode!=='eser') $('helpPanel').classList.remove('on');
+    $('avNote').textContent=''; renderAv();
   });
 
-  function getRecord(){ try{ return +(localStorage.getItem('cn_rec_'+level)||0); }catch(e){ return 0; } }
-  function setRecord(v){ try{ localStorage.setItem('cn_rec_'+level, v); }catch(e){} }
-  function showRecord(){ const r = getRecord(); $('record').textContent = r ? `🏆 Il tuo record (${LEVEL_NAME[level]}): ${r} punti` : ''; }
-  showRecord();
+  /* ---------- nome e classifica ---------- */
+  const AVATARS = {
+    m:[['👦','Ragazzo'],['👨‍🎤','Rocker'],['👨‍🚀','Astronauta'],['🦸‍♂️','Supereroe'],['🧙‍♂️','Mago'],['🤴','Principe'],['🧛‍♂️','Vampiro'],['👨‍🎨','Artista'],
+       ['🧜‍♂️','Tritone'],['🧝‍♂️','Elfo'],['🕵️‍♂️','Detective'],['👨‍🍳','Chef']],
+    f:[['👧','Ragazza'],['👩‍🎤','Rockstar'],['👩‍🚀','Astronauta'],['🦸‍♀️','Supereroina'],['🧙‍♀️','Maga'],['👸','Principessa'],['🧚‍♀️','Fata'],['👩‍🎨','Artista'],
+       ['🧜‍♀️','Sirena'],['🧝‍♀️','Elfa'],['🕵️‍♀️','Detective'],['👩‍🍳','Chef']]
+  };
+  let avG = 'm', avatar = null, avatar2 = null, slot = 0; // avatar = [emoji, nome]
+  try{ const s = JSON.parse(localStorage.getItem('cn_avatar')||'null'); if(s){ avatar = s.a; avG = s.g; } }catch(e){}
+  try{ const s = JSON.parse(localStorage.getItem('cn_avatar2')||'null'); if(s){ avatar2 = s.a; } }catch(e){}
+  document.querySelectorAll('#slots .slot').forEach(b=>b.onclick=()=>{ slot = +b.dataset.s; $('avNote').textContent=''; renderAv(); });
+  function renderAv(){
+    const duel = mode==='sfida';
+    if(!duel) slot = 0;
+    $('slots').classList.toggle('on', duel);
+    $('avLabel').textContent = duel ? 'Scegliete i vostri avatar' : 'Scegli il tuo avatar';
+    document.querySelectorAll('#slots .slot').forEach(b=>b.classList.toggle('sel', +b.dataset.s===slot));
+    $('slot0').textContent = avatar ? avatar[0] : '❔';
+    $('slot1').textContent = avatar2 ? avatar2[0] : '❔';
+    const mine = slot===0 ? avatar : avatar2, other = duel ? (slot===0 ? avatar2 : avatar) : null;
+    document.querySelectorAll('#avTabs button').forEach(b=>b.classList.toggle('sel', b.dataset.g===avG));
+    $('avGrid').innerHTML = AVATARS[avG].map(([e,n],k)=>
+      `<button class="av ${mine && mine[0]===e?'sel':''} ${other && other[0]===e?'taken':''}" data-k="${k}"><span>${e}</span><small>${n}</small></button>`).join('');
+    $('avGrid').querySelectorAll('.av').forEach(b=>b.onclick=()=>{
+      const pick = AVATARS[avG][+b.dataset.k];
+      if(other && other[0]===pick[0]){ $('avNote').textContent = 'Questo avatar è già dell\'altro giocatore!'; return; }
+      $('avNote').textContent='';
+      if(slot===0){ avatar = pick; try{ localStorage.setItem('cn_avatar', JSON.stringify({a:avatar,g:avG})); }catch(e){} if(duel && !avatar2) slot = 1; }
+      else { avatar2 = pick; try{ localStorage.setItem('cn_avatar2', JSON.stringify({a:avatar2})); }catch(e){} }
+      renderAv();
+    });
+  }
+  document.querySelectorAll('#avTabs button').forEach(b=>b.onclick=()=>{ avG = b.dataset.g; renderAv(); });
+  renderAv();
+
+  let memLb = [];
+  function loadLb(){ try{ return JSON.parse(localStorage.getItem('cn_lb')||'[]'); }catch(e){ return memLb; } }
+  function saveLb(lb){ memLb = lb; try{ localStorage.setItem('cn_lb', JSON.stringify(lb)); }catch(e){} }
+  function sortLb(lb){ return lb.sort((a,b)=> b.p-a.p || b.s-a.s || b.lv-a.lv || a.id-b.id); }
+  function esc(t){ return String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  function renderLb(el, meId){
+    const lb = sortLb(loadLb());
+    if(!lb.length){ el.innerHTML = '<p class="lbempty">Ancora nessuna partita. Sii il primo! 🚀</p>'; return; }
+    let top = lb.slice(0,10);
+    const ids = [].concat(meId||[]);
+    const mePos = lb.findIndex(e=>ids.includes(e.id) && lb.indexOf(e)>=10);
+    let rows = top.map((e,k)=>row(e,k)).join('');
+    if(mePos>=10) rows += `<tr><td colspan="4" style="text-align:center;color:#a39cc4">…</td></tr>` + row(lb[mePos],mePos);
+    el.innerHTML = `<table class="lb"><tr><th></th><th>Nome</th><th>Livello</th><th style="text-align:right">Punti</th></tr>${rows}</table>`;
+    function row(e,k){
+      const medal = ['🥇','🥈','🥉'][k] || (k+1);
+      return `<tr class="${ids.includes(e.id)?'me':''}"><td class="pos">${medal}</td><td><span class="ava">${e.a||'🙂'}</span>${esc(e.n)}<div class="st">${'⭐'.repeat(e.s)}</div></td>
+        <td>${LEVEL_ICON[e.lv]} <span class="st">${e.t} note</span></td><td class="pts">${e.p}</td></tr>`;
+    }
+  }
+  renderLb($('lbStart'));
+  let resetArmed = false;
+  $('resetLb').onclick = ()=>{
+    if(!resetArmed){ resetArmed = true; $('resetLb').textContent = 'Tocca ancora per confermare'; setTimeout(()=>{ resetArmed=false; $('resetLb').textContent='Azzera classifica'; },3000); return; }
+    saveLb([]); resetArmed=false; $('resetLb').textContent='Azzera classifica'; renderLb($('lbStart'));
+  };
 
   /* ---------- tastiera ---------- */
   NAMES.forEach((n,k)=>{
@@ -349,57 +488,84 @@
   $('soundBtn').onclick = ()=>{ soundOn = !soundOn; $('soundBtn').textContent = soundOn?'🔊':'🔇'; };
 
   /* ---------- gioco ---------- */
+  let players = [], nP = 1, turns = 0;
+  function newPlayer(av){ return {av, score:0, streak:0, best:0, right:0, bonus:0}; }
   function buildSeq(){
     const [a,b] = LEVEL_RANGE[level];
     notesSeq = [];
     let last = -1;
-    for(let k=0;k<total;k++){
+    for(let k=0;k<turns;k++){
       let n; do{ n = a + Math.floor(Math.random()*(b-a+1)); }while(n===last);
       notesSeq.push(n); last = n;
     }
   }
+  function needAvatar(msg){
+    show('sStart'); const g=$('avGrid'); g.classList.remove('err'); void g.offsetWidth; g.classList.add('err');
+    $('avNote').textContent = msg; renderAv();
+    g.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+  let gameId = 0;
   function start(){
-    i=0; score=0; streak=0; best=0; right=0; bonusCount=0;
+    const duel = mode==='sfida';
+    if(mode==='gara' && !avatar){ slot=0; return needAvatar('👆 Scegli un avatar per entrare in classifica!'); }
+    if(duel && !avatar){ slot=0; return needAvatar('👆 Giocatore 1, scegli il tuo avatar!'); }
+    if(duel && !avatar2){ slot=1; return needAvatar('👆 Giocatore 2, scegli il tuo avatar!'); }
+    $('meAv').innerHTML = (!duel && avatar) ? `<span>${avatar[0]}</span>${avatar[1]}` : '';
+    $('meAv').style.display = (!duel && avatar) ? '' : 'none';
+    gameId++;
+    nP = duel ? 2 : 1;
+    players = duel ? [newPlayer(avatar), newPlayer(avatar2)] : [newPlayer(avatar)];
+    turns = total * nP; i = 0;
     const eser = mode==='eser';
     $('helpBtn').style.display = eser ? '' : 'none';
     if(!eser) $('helpPanel').classList.remove('on');
-    $('hScoreLbl').textContent = eser ? 'Giuste' : 'Punti';
     buildSeq(); show('sGame'); next();
   }
+  const cur = () => players[i % nP];
   function updateHud(){
-    $('hNum').textContent = `${Math.min(i+1,total)}/${total}`;
-    $('hScore').textContent = score;
-    $('hStreak').textContent = streak;
-    $('prog').style.width = (i/total*100)+'%';
+    const round = Math.min(Math.floor(i/nP)+1, total);
+    if(nP===1){
+      const P = players[0];
+      $('hud').innerHTML = `<div class="pill"><b>${round}/${total}</b><span>Nota</span></div>
+        <div class="pill score"><b>${P.score}</b><span>${mode==='eser'?'Giuste':'Punti'}</span></div>
+        <div class="pill streak"><b>${P.streak}</b><span>Di fila 🔥</span></div>`;
+    } else {
+      const act = i % nP;
+      const pp = (P,k)=>`<div class="pill score ${k===act && i<turns?'active':''}"><div class="avp">${P.av[0]}</div><b>${P.score}</b><span>🔥 ${P.streak}</span></div>`;
+      $('hud').innerHTML = pp(players[0],0) + `<div class="pill"><b>${round}/${total}</b><span>Nota</span></div>` + pp(players[1],1);
+    }
+    $('prog').style.width = (i/turns*100)+'%';
   }
   function next(){
-    if(i>=total){ return finish(); }
+    if(i>=turns){ return finish(); }
     current = notesSeq[i];
     locked = false;
     $('fb').textContent=''; $('fb').className='feedback';
+    $('turn').textContent = nP>1 ? `Tocca a ${cur().av[0]} ${cur().av[1]}!` : '';
     document.querySelectorAll('#keys button').forEach(b=>{ b.disabled=false; b.classList.remove('right','wrong'); });
     updateHud(); drawStaff(current);
   }
   const PRAISE = ["Bravo! 🎉","Esatto! ✨","Grande! 💪","Perfetto! 🌟","Wow! 🤩","Super! 🚀"];
   function answer(k,btn){
     if(locked) return; locked = true;
+    const P = cur();
     const correctK = m7(current);
     const card = $('staffCard'); card.classList.remove('good','bad'); void card.offsetWidth;
     document.querySelectorAll('#keys button').forEach(b=>b.disabled=true);
     if(k===correctK){
-      score += 1; right++; streak++; best = Math.max(best,streak);
+      P.score += 1; P.right++; P.streak++; P.best = Math.max(P.best,P.streak);
       btn.classList.add('right'); card.classList.add('good');
       $('fb').textContent = PRAISE[Math.floor(Math.random()*PRAISE.length)] + ' +1';
       $('fb').className='feedback ok';
       play(current);
-      if(mode==='gara' && streak % 3 === 0){
-        score += BONUS_PTS; bonusCount++;
-        const bz = $('bonus'); bz.textContent = `🔥 ${streak} DI FILA! +${BONUS_PTS} 🔥`;
+      if(mode!=='eser' && P.streak % 3 === 0){
+        P.score += BONUS_PTS; P.bonus++;
+        const bz = $('bonus'); bz.textContent = `🔥 ${nP>1?P.av[0]+' ':''}${P.streak} DI FILA! +${BONUS_PTS} 🔥`;
         bz.classList.remove('show'); void bz.offsetWidth; bz.classList.add('show');
         setTimeout(fanfare,250);
       }
     } else {
-      streak = 0;
+      P.streak = 0;
       btn.classList.add('wrong'); card.classList.add('bad');
       document.querySelector(`#keys button[data-k="${correctK}"]`).classList.add('right');
       $('fb').textContent = `Oops! Era ${NAMES[correctK]} 🙈`;
@@ -409,42 +575,74 @@
     }
     updateHud();
     i++;
-    setTimeout(next, k===correctK ? 1000 : 1700);
+    const g = gameId;
+    setTimeout(()=>{ if(g===gameId) next(); }, k===correctK ? 1100 : 1800);
   }
 
   function maxPoints(){ return total + Math.floor(total/3)*BONUS_PTS; }
+  function starsOf(P){ const pct = P.score/maxPoints(); return pct>=0.9?5 : pct>=0.7?4 : pct>=0.5?3 : pct>=0.3?2 : P.right>0?1:0; }
+  function addToLb(P,stars){
+    const entry = {id:Date.now()+Math.random(), a:P.av[0], n:P.av[1], p:P.score, s:stars, lv:level, t:total};
+    const lb = sortLb(loadLb().concat(entry)).slice(0,100);
+    saveLb(lb);
+    return {id:entry.id, pos:lb.findIndex(e=>e.id===entry.id), len:lb.length};
+  }
   function finish(){
     $('prog').style.width='100%';
     $('helpPanel').classList.remove('on');
+    $('turn').textContent='';
+    const solo = nP===1;
+    $('soloCard').style.display = solo ? '' : 'none';
+    $('duel').classList.toggle('on', !solo);
+    const P = players[0];
     if(mode==='eser'){
       $('endTitle').textContent = 'Esercizio finito!';
       $('stars').style.display='none';
       $('fBonusBox').style.display='none';
-      $('fScore').textContent = `${right}/${total}`;
+      $('fScore').textContent = `${P.right}/${total}`;
       $('fMax').textContent = 'note indovinate';
-      const pc = right/total;
+      const pc = P.right/total;
       $('fMsg').textContent = pc===1 ? 'Perfetto! Ora prova la Gara 🏆' : pc>=0.7 ? 'Molto bene! Quasi pronto per la Gara 💪' : 'Continua a esercitarti, ce la fai! 🙂';
-      $('fRight').textContent = `${right}/${total}`;
-      $('fBest').textContent = best;
+      $('fRight').textContent = `${P.right}/${total}`;
+      $('fBest').textContent = P.best;
+      $('lbEndCard').style.display='none';
       show('sEnd');
       if(pc===1) setTimeout(confetti,300);
+      return;
+    }
+    if(!solo){
+      const [A,B] = players;
+      const sA = starsOf(A), sB = starsOf(B);
+      const w = A.score>B.score ? 0 : B.score>A.score ? 1 : -1;
+      $('endTitle').textContent = w<0 ? 'Pareggio! 🤝' : `Vince ${players[w].av[0]} ${players[w].av[1]}!`;
+      const box = (Q,s,k)=>`<div class="dp ${k===w?'win':''}"><div class="crown">${k===w?'👑':''}</div>
+        <div class="big-av">${Q.av[0]}</div><div class="nm">${Q.av[1]}</div><div class="sc">${Q.score}</div>
+        <div class="st">${'⭐'.repeat(s)}</div><div class="info">Giuste ${Q.right}/${total} · Bonus ${Q.bonus}<br>Serie migliore ${Q.best}</div></div>`;
+      $('duel').innerHTML = box(A,sA,0) + box(B,sB,1);
+      const r1 = addToLb(A,sA), r2 = addToLb(B,sB);
+      $('lbEndCard').style.display='';
+      renderLb($('lbEnd'), [r1.id, r2.id]);
+      show('sEnd');
+      fanfare();
+      setTimeout(confetti,400);
       return;
     }
     $('endTitle').textContent = 'Partita finita!';
     $('stars').style.display='flex';
     $('fBonusBox').style.display='';
-    const max = maxPoints();
-    const pct = score / max;
-    let stars = pct>=0.9?5 : pct>=0.7?4 : pct>=0.5?3 : pct>=0.3?2 : right>0?1:0;
+    const stars = starsOf(P);
     const msgs = ["Non mollare, riprova! 💪","Buon inizio! Continua così 🙂","Bene! Stai migliorando 👍","Molto bravo! 😃","Fantastico! Quasi perfetto 🤩","CAMPIONE DELLE NOTE! 🏆"];
-    $('fScore').textContent = score;
-    $('fMax').textContent = `punti su ${max} possibili`;
+    $('fScore').textContent = P.score;
+    $('fMax').textContent = `punti su ${maxPoints()} possibili`;
     $('fMsg').textContent = msgs[stars];
-    $('fRight').textContent = `${right}/${total}`;
-    $('fBonus').textContent = bonusCount;
-    $('fBest').textContent = best;
-    const rec = getRecord();
-    if(score>rec){ setRecord(score); if(rec>0) $('fMsg').textContent += ' Nuovo record! 🏆'; }
+    $('fRight').textContent = `${P.right}/${total}`;
+    $('fBonus').textContent = P.bonus;
+    $('fBest').textContent = P.best;
+    const res = addToLb(P,stars);
+    if(res.pos===0 && res.len>1) $('fMsg').textContent += ' Sei PRIMO in classifica! 🥇';
+    else if(res.pos>=0) $('fMsg').textContent += ` Sei ${res.pos+1}° in classifica!`;
+    $('lbEndCard').style.display='';
+    renderLb($('lbEnd'), res.id);
     show('sEnd');
     const sp = document.querySelectorAll('#stars span');
     sp.forEach(s=>s.classList.remove('lit'));
@@ -490,7 +688,15 @@
 
   $('startBtn').onclick = start;
   $('againBtn').onclick = start;
-  $('menuBtn').onclick = ()=>{ showRecord(); show('sStart'); };
+  function toMenu(){ gameId++; $('helpPanel').classList.remove('on'); renderLb($('lbStart')); show('sStart'); }
+  $('menuBtn').onclick = toMenu;
+  let quitArmed = false;
+  $('quitBtn').onclick = ()=>{
+    if(!quitArmed){ quitArmed = true; $('quitBtn').classList.add('warn'); $('quitBtn').textContent = 'Esci? Tocca di nuovo';
+      setTimeout(()=>{ quitArmed=false; $('quitBtn').classList.remove('warn'); $('quitBtn').textContent='🏠 Menu'; },2500); return; }
+    quitArmed=false; $('quitBtn').classList.remove('warn'); $('quitBtn').textContent='🏠 Menu';
+    toMenu();
+  };
 
   /* ---------- coriandoli ---------- */
   function confetti(){
