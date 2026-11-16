@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Caccia alle Note</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<script async src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -139,7 +140,13 @@
   .avgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
   .avgrid.err{animation:shake .4s}
   .av{border:3px solid transparent;background:#f6f4ff;border-radius:18px;padding:6px 2px 4px;cursor:pointer;font-family:inherit}
-  .av span{display:block;font-size:2.2rem;line-height:1.1}
+  .av span{display:block;font-size:2.2rem;line-height:1.1;white-space:nowrap}
+  .av span.two{font-size:1.5rem;line-height:1.47}
+  .rulesbox summary{list-style:none;font-weight:700;font-size:1.1rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+  .rulesbox summary::-webkit-details-marker{display:none}
+  .rulesbox .arr{font-size:.9rem;color:#6c5ce7;transition:transform .2s}
+  .rulesbox[open] .arr{transform:rotate(180deg)}
+  .rulesbox[open] .rules{margin-top:10px}
   .av small{display:block;font-size:.7rem;font-weight:600;color:#4b3f72;margin-top:2px}
   .av.sel{border-color:#6c5ce7;background:#fff3c4;transform:scale(1.06)}
   .avnote{text-align:center;font-size:.85rem;color:#ff4d6d;font-weight:600;min-height:1.1em;margin:6px 0 0}
@@ -161,6 +168,7 @@
   .lbempty{text-align:center;color:#7a6f9b;margin:6px 0}
   .tiny{border:none;background:none;color:#a39cc4;font-family:inherit;font-size:.8rem;margin:8px auto 0;display:block;cursor:pointer;text-decoration:underline}
   #modes button small{font-size:.7rem}
+  #modes{display:grid;grid-template-columns:1fr 1fr}
   .slots{display:none;gap:8px;margin-bottom:10px}
   .slots.on{display:flex}
   .slot{flex:1;border:3px dashed #c9c2f5;background:#fff;border-radius:16px;padding:6px;font-family:inherit;cursor:pointer;
@@ -188,6 +196,18 @@
   .timer .tb i{display:block;height:100%;width:100%;background:#2ecc71;border-radius:8px}
   .timer.hurry b{color:#ff4d6d;animation:pulse .5s infinite alternate}
   @keyframes pulse{to{transform:scale(1.2)}}
+  .online{display:none}
+  .online.on{display:block}
+  .onrow{display:flex;gap:8px;align-items:center}
+  .onbtn{border:none;border-radius:16px;padding:12px 14px;font-family:inherit;font-size:1.05rem;font-weight:700;color:#fff;
+     background:#6c5ce7;box-shadow:0 5px 0 #4834d4;cursor:pointer;white-space:nowrap}
+  .onbtn:active{transform:translateY(4px);box-shadow:0 1px 0 #4834d4}
+  .onbtn.alt{background:#1fb6ff;box-shadow:0 5px 0 #0d8ccc}
+  .oror{text-align:center;color:#7a6f9b;font-weight:600;margin:10px 0}
+  .codebig{text-align:center;font-size:2.6rem;font-weight:700;letter-spacing:.25em;color:#ff6fa5;margin:6px 0}
+  .onstatus{text-align:center;font-weight:600;margin:10px 0 0;min-height:1.3em}
+  .onstatus.ok{color:#1e9e55} .onstatus.ko{color:#ff4d6d}
+  img.cg{height:1em;width:1em;vertical-align:-0.12em}
   footer{text-align:center;font-size:.8rem;color:#5b4d86;margin:6px 0 10px}
   canvas#confetti{position:fixed;inset:0;pointer-events:none;z-index:30}
 </style>
@@ -246,11 +266,9 @@
         <button data-md="gara" class="sel">🏆 Gara<small>punti e stelline, senza aiuto</small></button>
         <button data-md="eser">🧩 Esercizio<small>con l'aiuto, senza punti</small></button>
         <button data-md="sfida">⚔️ Sfida<small>in due, a turno</small></button>
+        <button data-md="online">🌐 A distanza<small>sfida in diretta</small></button>
       </div>
-    </div>
-
-    <div class="card">
-      <p class="label">Livello</p>
+      <p class="label" style="margin-top:16px">Livello</p>
       <div class="seg" id="levels">
         <button data-lv="1" class="sel">🐣 Facile<small>solo dentro il pentagramma</small></button>
         <button data-lv="2">🐯 Medio<small>con 1 taglio addizionale</small></button>
@@ -259,18 +277,36 @@
       </div>
     </div>
 
-    <div class="card">
-      <p class="label">Come si gioca</p>
+    <details class="card rulesbox">
+      <summary>📖 Come si gioca <span class="arr">▼</span></summary>
       <ul class="rules">
         <li>✅ Ogni nota giusta = <b>1 punto</b></li>
         <li>🔥 3 note giuste di fila = <b>+2 punti bonus</b></li>
         <li>⭐ Alla fine ricevi da 1 a 5 stelline</li>
         <li>🧩 Nella modalità <b>Esercizio</b> c'è il promemoria 💡, ma niente punti</li>
         <li>⚔️ Nella <b>Sfida</b> si gioca in due sullo stesso telefono, una nota a testa: vince chi fa più punti!</li>
+        <li>🌐 <b>A distanza</b>: uno crea la stanza, l'altro entra con il codice e giocate insieme da due telefoni</li>
       </ul>
-      <button class="helplink" data-help id="helpLink" style="display:none">💡 Ripassa le note (promemoria)</button>
-    </div>
+    </details>
+    <button class="helplink" data-help id="helpLink" style="display:none;margin-top:0">💡 Ripassa le note (promemoria)</button>
 
+    <div class="card online" id="onlineCard">
+      <p class="label">🌐 Sfida a distanza</p>
+      <div id="onSetup">
+        <button class="onbtn" id="hostBtn" style="width:100%">➕ Crea una stanza</button>
+        <p class="oror">oppure entra nella stanza di un amico</p>
+        <div class="onrow">
+          <input class="namein" id="joinCode" inputmode="numeric" maxlength="6" placeholder="Codice" style="flex:1">
+          <button class="onbtn alt" id="joinBtn">Entra</button>
+        </div>
+      </div>
+      <div id="onRoom" style="display:none">
+        <p class="hint" style="margin:0">Codice della stanza:</p>
+        <div class="codebig" id="roomCode">------</div>
+        <button class="tiny" id="leaveBtn">Esci dalla stanza</button>
+      </div>
+      <p class="onstatus" id="onStatus"></p>
+    </div>
     <button class="big" id="startBtn">GIOCA! 🚀</button>
 
     <div class="card">
@@ -363,14 +399,21 @@
     $('helpLink').style.display = mode==='eser' ? 'block' : 'none';
     if(mode!=='eser') $('helpPanel').classList.remove('on');
     $('avNote').textContent=''; renderAv();
+    $('onlineCard').classList.toggle('on', mode==='online');
+    updStartBtn();
   });
 
   /* ---------- nome e classifica ---------- */
+  const CG = '\uE000'; // segnaposto: chitarra classica disegnata
+  const CG_IMG = '<img class="cg" alt="chitarra classica" src="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%279%209%2046%2046%27%3E%3Cg%20transform%3D%27rotate%2840%2032%2032%29%27%3E%3Crect%20x%3D%2729%27%20y%3D%272%27%20width%3D%276%27%20height%3D%279%27%20rx%3D%271.5%27%20fill%3D%27%235a3a1e%27/%3E%3Crect%20x%3D%2730.3%27%20y%3D%274%27%20width%3D%271.2%27%20height%3D%275%27%20fill%3D%27%23f3d9a4%27/%3E%3Crect%20x%3D%2732.5%27%20y%3D%274%27%20width%3D%271.2%27%20height%3D%275%27%20fill%3D%27%23f3d9a4%27/%3E%3Crect%20x%3D%2730%27%20y%3D%2710%27%20width%3D%274%27%20height%3D%2722%27%20fill%3D%27%236b4423%27/%3E%3Cpath%20d%3D%27M32%2028c-6%200-9%203.5-8%208%20.6%202.6-3%204-3%209%200%207%205%2011%2011%2011s11-4%2011-11c0-5-3.6-6.4-3-9%201-4.5-2-8-8-8z%27%20fill%3D%27%23e2a24f%27%20stroke%3D%27%238a5420%27%20stroke-width%3D%271.5%27/%3E%3Ccircle%20cx%3D%2732%27%20cy%3D%2738%27%20r%3D%273.6%27%20fill%3D%27%233b2412%27%20stroke%3D%27%238a5420%27%20stroke-width%3D%271%27/%3E%3Crect%20x%3D%2727.5%27%20y%3D%2748%27%20width%3D%279%27%20height%3D%272.6%27%20rx%3D%271%27%20fill%3D%27%235a3a1e%27/%3E%3Cline%20x1%3D%2731%27%20y1%3D%276%27%20x2%3D%2731%27%20y2%3D%2749%27%20stroke%3D%27%23fff%27%20stroke-width%3D%27.35%27/%3E%3Cline%20x1%3D%2733%27%20y1%3D%276%27%20x2%3D%2733%27%20y2%3D%2749%27%20stroke%3D%27%23fff%27%20stroke-width%3D%27.35%27/%3E%3C/g%3E%3C/svg%3E">';
+  function emo(s){ return esc(s||'').split(CG).join(CG_IMG); }
   const AVATARS = {
     m:[['👦','Ragazzo'],['👨‍🎤','Rocker'],['👨‍🚀','Astronauta'],['🦸‍♂️','Supereroe'],['🧙‍♂️','Mago'],['🤴','Principe'],['🧛‍♂️','Vampiro'],['👨‍🎨','Artista'],
-       ['🧜‍♂️','Tritone'],['🧝‍♂️','Elfo'],['🕵️‍♂️','Detective'],['👨‍🍳','Chef']],
+       ['🧜‍♂️','Tritone'],['🧝‍♂️','Elfo'],['🕵️‍♂️','Detective'],['👨‍🍳','Chef'],['🕺','Ballerino'],['👦🎒','Studente elementari',1],['🙋‍♂️📚','Studente medie',1],
+       ['👨‍✈️','Pilota'],['🏃‍♂️','Atleta'],['👦⚽','Calciatore',1],['👨'+CG,'Chitarrista',1]],
     f:[['👧','Ragazza'],['👩‍🎤','Rockstar'],['👩‍🚀','Astronauta'],['🦸‍♀️','Supereroina'],['🧙‍♀️','Maga'],['👸','Principessa'],['🧚‍♀️','Fata'],['👩‍🎨','Artista'],
-       ['🧜‍♀️','Sirena'],['🧝‍♀️','Elfa'],['🕵️‍♀️','Detective'],['👩‍🍳','Chef']]
+       ['🧜‍♀️','Sirena'],['🧝‍♀️','Elfa'],['🕵️‍♀️','Detective'],['👩‍🍳','Chef'],['👧🎒','Studentessa elementari',1],['🙋‍♀️📚','Studentessa medie',1],
+       ['👩‍✈️','Pilota'],['🏃‍♀️','Atleta'],['👧⚽','Calciatrice',1],['👩'+CG,'Chitarrista',1]]
   };
   let avG = 'm', avatar = null, avatar2 = null, slot = 0; // avatar = [emoji, nome]
   try{ const s = JSON.parse(localStorage.getItem('cn_avatar')||'null'); if(s){ avatar = s.a; avG = s.g; } }catch(e){}
@@ -382,12 +425,12 @@
     $('slots').classList.toggle('on', duel);
     $('avLabel').textContent = duel ? 'Scegliete i vostri avatar' : 'Scegli il tuo avatar';
     document.querySelectorAll('#slots .slot').forEach(b=>b.classList.toggle('sel', +b.dataset.s===slot));
-    $('slot0').textContent = avatar ? avatar[0] : '❔';
-    $('slot1').textContent = avatar2 ? avatar2[0] : '❔';
+    $('slot0').innerHTML = avatar ? emo(avatar[0]) : '❔';
+    $('slot1').innerHTML = avatar2 ? emo(avatar2[0]) : '❔';
     const mine = slot===0 ? avatar : avatar2, other = duel ? (slot===0 ? avatar2 : avatar) : null;
     document.querySelectorAll('#avTabs button').forEach(b=>b.classList.toggle('sel', b.dataset.g===avG));
-    $('avGrid').innerHTML = AVATARS[avG].map(([e,n],k)=>
-      `<button class="av ${mine && mine[0]===e?'sel':''} ${other && other[0]===e?'taken':''}" data-k="${k}"><span>${e}</span><small>${n}</small></button>`).join('');
+    $('avGrid').innerHTML = AVATARS[avG].map(([e,n,two],k)=>
+      `<button class="av ${mine && mine[0]===e?'sel':''} ${other && other[0]===e?'taken':''}" data-k="${k}"><span class="${two?'two':''}">${emo(e)}</span><small>${n}</small></button>`).join('');
     $('avGrid').querySelectorAll('.av').forEach(b=>b.onclick=()=>{
       const pick = AVATARS[avG][+b.dataset.k];
       if(other && other[0]===pick[0]){ $('avNote').textContent = 'Questo avatar è già dell\'altro giocatore!'; return; }
@@ -416,7 +459,7 @@
     el.innerHTML = `<table class="lb"><tr><th></th><th>Nome</th><th>Livello</th><th style="text-align:right">Punti</th></tr>${rows}</table>`;
     function row(e,k){
       const medal = ['🥇','🥈','🥉'][k] || (k+1);
-      return `<tr class="${ids.includes(e.id)?'me':''}"><td class="pos">${medal}</td><td><span class="ava">${e.a||'🙂'}</span>${esc(e.n)}<div class="st">${'⭐'.repeat(e.s)}</div></td>
+      return `<tr class="${ids.includes(e.id)?'me':''}"><td class="pos">${medal}</td><td><span class="ava">${emo(e.a||'🙂')}</span>${esc(e.n)}<div class="st">${'⭐'.repeat(e.s)}</div></td>
         <td>${LEVEL_ICON[e.lv]} <span class="st">${e.t} note</span></td><td class="pts">${e.p}</td></tr>`;
     }
   }
@@ -513,12 +556,23 @@
     g.scrollIntoView({behavior:'smooth',block:'center'});
   }
   let gameId = 0;
-  function start(){
+  function start(preset){
+    if(mode==='online' && !preset){
+      if(!net.conn){ $('onlineCard').scrollIntoView({behavior:'smooth',block:'center'}); setStatus('Prima crea una stanza o entra con un codice','ko'); return; }
+      if(!net.host){ setStatus('Aspetta che il tuo avversario prema VIA! ⏳',''); return; }
+      if(!avatar){ slot=0; return needAvatar('👆 Scegli il tuo avatar!'); }
+    }
     const duel = mode==='sfida';
-    if(mode==='gara' && !avatar){ slot=0; return needAvatar('👆 Scegli un avatar per entrare in classifica!'); }
+    const online = mode==='online';
+    if(online && preset){ level = preset.level; total = preset.total; }
+    if((mode==='gara'||online) && !avatar){ slot=0; return needAvatar('👆 Scegli un avatar per entrare in classifica!'); }
     if(duel && !avatar){ slot=0; return needAvatar('👆 Giocatore 1, scegli il tuo avatar!'); }
     if(duel && !avatar2){ slot=1; return needAvatar('👆 Giocatore 2, scegli il tuo avatar!'); }
-    $('meAv').innerHTML = (!duel && avatar) ? `<span>${avatar[0]}</span>${avatar[1]}` : '';
+    if(online){
+      net.opp = {av: net.oppAv || ['🙂','Avversario'], score:0, i:0, done:false, right:0, bonus:0, best:0, stars:0, left:false};
+      net.myDone = false;
+    }
+    $('meAv').innerHTML = (!duel && avatar) ? `<span>${emo(avatar[0])}</span>${esc(avatar[1])}` : '';
     $('meAv').style.display = (!duel && avatar) ? '' : 'none';
     gameId++;
     nP = duel ? 2 : 1;
@@ -527,7 +581,11 @@
     const eser = mode==='eser';
     $('helpBtn').style.display = eser ? '' : 'none';
     if(!eser) $('helpPanel').classList.remove('on');
-    buildSeq(); show('sGame'); next();
+    if(online){
+      if(preset) notesSeq = preset.seq.slice();
+      else { buildSeq(); net.send({t:'start', seq:notesSeq, level, total}); }
+    } else buildSeq();
+    show('sGame'); next();
   }
   const cur = () => players[i % nP];
   const TIME_LIMIT = 10; // secondi, solo Espertissimo
@@ -559,14 +617,19 @@
     g.gain.exponentialRampToValueAtTime(.0001,t+.08); o.connect(g).connect(actx.destination); o.start(t); o.stop(t+.1);}catch(e){} }
   function updateHud(){
     const round = Math.min(Math.floor(i/nP)+1, total);
-    if(nP===1){
+    if(mode==='online' && net.opp){
+      const P = players[0], O = net.opp;
+      $('hud').innerHTML = `<div class="pill score active"><div class="avp">${emo(P.av[0])}</div><b>${P.score}</b><span>Tu</span></div>
+        <div class="pill"><b>${round}/${total}</b><span>Nota</span></div>
+        <div class="pill score"><div class="avp">${emo(O.av[0])}</div><b>${O.score}</b><span>${O.left?'uscito':O.done?'finito ✔':'nota '+Math.min(O.i+1,total)}</span></div>`;
+    } else if(nP===1){
       const P = players[0];
       $('hud').innerHTML = `<div class="pill"><b>${round}/${total}</b><span>Nota</span></div>
         <div class="pill score"><b>${P.score}</b><span>${mode==='eser'?'Giuste':'Punti'}</span></div>
         <div class="pill streak"><b>${P.streak}</b><span>Di fila 🔥</span></div>`;
     } else {
       const act = i % nP;
-      const pp = (P,k)=>`<div class="pill score ${k===act && i<turns?'active':''}"><div class="avp">${P.av[0]}</div><b>${P.score}</b><span>🔥 ${P.streak}</span></div>`;
+      const pp = (P,k)=>`<div class="pill score ${k===act && i<turns?'active':''}"><div class="avp">${emo(P.av[0])}</div><b>${P.score}</b><span>🔥 ${P.streak}</span></div>`;
       $('hud').innerHTML = pp(players[0],0) + `<div class="pill"><b>${round}/${total}</b><span>Nota</span></div>` + pp(players[1],1);
     }
     $('prog').style.width = (i/turns*100)+'%';
@@ -576,7 +639,7 @@
     current = notesSeq[i];
     locked = false;
     $('fb').textContent=''; $('fb').className='feedback';
-    $('turn').textContent = nP>1 ? `Tocca a ${cur().av[0]} ${cur().av[1]}!` : '';
+    $('turn').innerHTML = nP>1 ? `Tocca a ${emo(cur().av[0])} ${esc(cur().av[1])}!` : '';
     document.querySelectorAll('#keys button').forEach(b=>{ b.disabled=false; b.classList.remove('right','wrong'); });
     updateHud(); drawStaff(current); startTimer();
   }
@@ -596,7 +659,7 @@
       play(current);
       if(mode!=='eser' && P.streak % 3 === 0){
         P.score += BONUS_PTS; P.bonus++;
-        const bz = $('bonus'); bz.textContent = `🔥 ${nP>1?P.av[0]+' ':''}${P.streak} DI FILA! +${BONUS_PTS} 🔥`;
+        const bz = $('bonus'); bz.innerHTML = `🔥 ${nP>1?emo(P.av[0])+' ':''}${P.streak} DI FILA! +${BONUS_PTS} 🔥`;
         bz.classList.remove('show'); void bz.offsetWidth; bz.classList.add('show');
         setTimeout(fanfare,250);
       }
@@ -610,8 +673,9 @@
       play(current,false);
       setTimeout(()=>play(current),350);
     }
-    updateHud();
     i++;
+    updateHud();
+    if(mode==='online') net.send({t:'prog', i, score:P.score});
     const g = gameId;
     setTimeout(()=>{ if(g===gameId) next(); }, k===correctK ? 1100 : 1800);
   }
@@ -629,6 +693,7 @@
     $('helpPanel').classList.remove('on');
     $('turn').textContent='';
     stopTimer(); $('timer').classList.remove('on');
+    if(mode==='online'){ return finishOnline(); }
     const solo = nP===1;
     $('soloCard').style.display = solo ? '' : 'none';
     $('duel').classList.toggle('on', !solo);
@@ -652,9 +717,9 @@
       const [A,B] = players;
       const sA = starsOf(A), sB = starsOf(B);
       const w = A.score>B.score ? 0 : B.score>A.score ? 1 : -1;
-      $('endTitle').textContent = w<0 ? 'Pareggio! 🤝' : `Vince ${players[w].av[0]} ${players[w].av[1]}!`;
+      $('endTitle').innerHTML = w<0 ? 'Pareggio! 🤝' : `Vince ${emo(players[w].av[0])} ${esc(players[w].av[1])}!`;
       const box = (Q,s,k)=>`<div class="dp ${k===w?'win':''}"><div class="crown">${k===w?'👑':''}</div>
-        <div class="big-av">${Q.av[0]}</div><div class="nm">${Q.av[1]}</div><div class="sc">${Q.score}</div>
+        <div class="big-av">${emo(Q.av[0])}</div><div class="nm">${esc(Q.av[1])}</div><div class="sc">${Q.score}</div>
         <div class="st">${'⭐'.repeat(s)}</div><div class="info">Giuste ${Q.right}/${total} · Bonus ${Q.bonus}<br>Serie migliore ${Q.best}</div></div>`;
       $('duel').innerHTML = box(A,sA,0) + box(B,sB,1);
       const r1 = addToLb(A,sA), r2 = addToLb(B,sB);
@@ -724,9 +789,147 @@
   $('hpHead').addEventListener('pointerup', stop);
   $('hpHead').addEventListener('pointercancel', stop);
 
-  $('startBtn').onclick = start;
-  $('againBtn').onclick = start;
-  function toMenu(){ gameId++; stopTimer(); $('helpPanel').classList.remove('on'); renderLb($('lbStart')); show('sStart'); }
+  /* ---------- sfida a distanza (PeerJS) ---------- */
+  const net = {peer:null, conn:null, host:false, oppAv:null, opp:null, myDone:false, myRes:null,
+    send(o){ try{ if(this.conn && this.conn.open) this.conn.send(o); }catch(e){} } };
+  const PREFIX = 'caccia-alle-note-ip-';
+  function setStatus(t,c){ $('onStatus').innerHTML=t; $('onStatus').className='onstatus '+(c||''); }
+  function updStartBtn(){
+    const b = $('startBtn');
+    if(mode!=='online'){ b.textContent='GIOCA! 🚀'; b.style.opacity=1; return; }
+    b.textContent = net.conn && net.host ? 'VIA! 🚀' : net.conn ? 'Aspetta il VIA… ⏳' : 'GIOCA! 🚀';
+    b.style.opacity = net.conn && net.host ? 1 : .5;
+  }
+  function netReset(msg,c){
+    try{ net.conn && net.conn.close(); }catch(e){}
+    try{ net.peer && net.peer.destroy(); }catch(e){}
+    net.peer=null; net.conn=null; net.host=false; net.oppAv=null;
+    $('onSetup').style.display=''; $('onRoom').style.display='none';
+    setStatus(msg||'', c); updStartBtn();
+  }
+  function noLib(){ if(window.Peer) return false; setStatus('Serve internet per la sfida a distanza 📶','ko'); return true; }
+  function wire(conn){
+    net.conn = conn;
+    conn.on('open', ()=>{
+      net.send({t:'hello', av:avatar});
+      updStartBtn();
+    });
+    conn.on('data', onData);
+    conn.on('close', ()=>{
+      const inGame = $('sGame').classList.contains('on') || (net.opp && !net.opp.done);
+      if(net.opp){ net.opp.left = true; updateHud(); }
+      net.conn = null;
+      if(inGame && net.opp && net.myDone) showOnlineResult();
+      netReset('L\'avversario si è disconnesso 😕','ko');
+    });
+  }
+  function onData(d){
+    if(!d || !d.t) return;
+    if(d.t==='hello'){
+      net.oppAv = d.av || ['🙂','Avversario'];
+      setStatus(`Connesso con ${emo(net.oppAv[0])} ${esc(net.oppAv[1])}! ` + (net.host ? 'Premi VIA! 🚀' : 'Aspetta il VIA ⏳'),'ok');
+      updStartBtn();
+    } else if(d.t==='start'){
+      mode = 'online'; gameId++; $('helpPanel').classList.remove('on');
+      start({seq:d.seq, level:d.level, total:d.total});
+    } else if(d.t==='prog' && net.opp){
+      net.opp.i = d.i; net.opp.score = d.score; updateHud();
+      if(net.myDone) showWaiting();
+    } else if(d.t==='done' && net.opp){
+      Object.assign(net.opp, d.r, {done:true}); updateHud();
+      if(net.myDone) showOnlineResult();
+    } else if(d.t==='quit' && net.opp){
+      net.opp.left = true; updateHud();
+      if(net.myDone) showOnlineResult();
+    }
+  }
+  $('hostBtn').onclick = ()=>{
+    if(noLib()) return;
+    if(!avatar){ slot=0; return needAvatar('👆 Prima scegli il tuo avatar!'); }
+    netReset();
+    const code = String(Math.floor(100000+Math.random()*900000));
+    setStatus('Creo la stanza…');
+    const peer = new Peer(PREFIX+code); net.peer = peer; net.host = true;
+    peer.on('open', ()=>{
+      $('onSetup').style.display='none'; $('onRoom').style.display='';
+      $('roomCode').textContent = code;
+      setStatus('Manda il codice al tuo amico e aspetta che entri… ⏳');
+    });
+    peer.on('connection', c=>{ if(net.conn){ c.close(); return; } wire(c); });
+    peer.on('error', e=>{ if(e.type==='unavailable-id') $('hostBtn').onclick(); else setStatus('Problema di connessione, riprova 📶','ko'); });
+  };
+  $('joinBtn').onclick = ()=>{
+    if(noLib()) return;
+    const code = $('joinCode').value.replace(/\D/g,'');
+    if(code.length!==6){ setStatus('Il codice ha 6 cifre','ko'); return; }
+    if(!avatar){ slot=0; return needAvatar('👆 Prima scegli il tuo avatar!'); }
+    netReset();
+    setStatus('Mi collego…');
+    const peer = new Peer(); net.peer = peer; net.host = false;
+    peer.on('open', ()=>{
+      const c = peer.connect(PREFIX+code, {reliable:true});
+      wire(c);
+      $('onSetup').style.display='none'; $('onRoom').style.display=''; $('roomCode').textContent = code;
+    });
+    peer.on('error', e=>{
+      if(e.type==='peer-unavailable') netReset('Stanza non trovata: controlla il codice 🤔','ko');
+      else setStatus('Problema di connessione, riprova 📶','ko');
+    });
+  };
+  $('leaveBtn').onclick = ()=>{ net.send({t:'quit'}); netReset('Sei uscito dalla stanza'); };
+
+  function finishOnline(){
+    const P = players[0];
+    const stars = starsOf(P);
+    net.myDone = true;
+    net.myRes = {score:P.score, right:P.right, bonus:P.bonus, best:P.best, stars};
+    net.send({t:'done', r:net.myRes});
+    const res = addToLb(P,stars); net.myLbId = res.id;
+    if(net.opp.done || net.opp.left) showOnlineResult(); else showWaiting();
+  }
+  function showWaiting(){
+    const O = net.opp, M = net.myRes, P = players[0];
+    $('soloCard').style.display='none'; $('duel').classList.add('on');
+    $('endTitle').innerHTML = `Aspetto ${emo(O.av[0])}… ⏳`;
+    $('duel').innerHTML = `<div class="dp"><div class="crown"></div><div class="big-av">${emo(P.av[0])}</div><div class="nm">Tu</div>
+      <div class="sc">${M.score}</div><div class="info">Hai finito ✔</div></div>
+      <div class="dp"><div class="crown"></div><div class="big-av">${emo(O.av[0])}</div><div class="nm">${esc(O.av[1])}</div>
+      <div class="sc">${O.score}</div><div class="info">Sta giocando… nota ${Math.min(O.i+1,total)}/${total}</div></div>`;
+    $('lbEndCard').style.display='none';
+    $('againBtn').style.display='none';
+    show('sEnd');
+  }
+  function showOnlineResult(){
+    const O = net.opp, M = net.myRes, P = players[0];
+    if(!M) return;
+    const w = O.left && !O.done ? 0 : M.score>O.score ? 0 : O.score>M.score ? 1 : -1;
+    $('soloCard').style.display='none'; $('duel').classList.add('on');
+    $('endTitle').innerHTML = w<0 ? 'Pareggio! 🤝' : w===0 ? 'HAI VINTO! 🏆' : `Vince ${emo(O.av[0])} ${esc(O.av[1])}!`;
+    const box = (av,nm,R,k,extra)=>`<div class="dp ${k===w?'win':''}"><div class="crown">${k===w?'👑':''}</div>
+      <div class="big-av">${emo(av)}</div><div class="nm">${esc(nm)}</div><div class="sc">${R.score}</div>
+      <div class="st">${'⭐'.repeat(R.stars||0)}</div><div class="info">${extra||`Giuste ${R.right}/${total} · Bonus ${R.bonus}<br>Serie migliore ${R.best}`}</div></div>`;
+    $('duel').innerHTML = box(P.av[0],'Tu',M,0) + box(O.av[0],O.av[1],O,1, O.left && !O.done ? 'Ha lasciato la partita' : '');
+    $('lbEndCard').style.display='';
+    renderLb($('lbEnd'), net.myLbId);
+    $('againBtn').style.display='';
+    $('againBtn').textContent = net.conn ? (net.host ? 'Rivincita! 🔄' : 'Aspetta la rivincita ⏳') : 'Gioca ancora 🔄';
+    show('sEnd');
+    if(w===0){ fanfare(); setTimeout(confetti,400); }
+  }
+
+  $('startBtn').onclick = ()=>start();
+  $('againBtn').onclick = ()=>{
+    if(mode==='online'){
+      if(!net.conn){ toMenu(); return; }
+      if(!net.host) return;
+    }
+    $('againBtn').textContent='Gioca ancora 🔄';
+    start();
+  };
+  function toMenu(){
+    if(mode==='online' && net.conn && $('sGame').classList.contains('on')){ net.send({t:'quit'}); netReset('Sei uscito dalla partita'); }
+    $('againBtn').style.display=''; $('againBtn').textContent='Gioca ancora 🔄';
+    gameId++; stopTimer(); $('helpPanel').classList.remove('on'); renderLb($('lbStart')); show('sStart'); }
   $('menuBtn').onclick = toMenu;
   let quitArmed = false;
   $('quitBtn').onclick = ()=>{
